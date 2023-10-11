@@ -1,0 +1,13 @@
+1. 
+g++ TCPclient.cpp -o TCPclient.exe -lws2_32
+-> Initialize
+2. 
+.\TCPclient.exe
+-> Call exe to see result
+-----------------------------------------------------------------
+1. 
+g++ TCPServer.cpp -o TCPServer.exe -lws2_32
+-> Initialize
+2. 
+.\TCPServer.exe
+-> Call exe to see result
