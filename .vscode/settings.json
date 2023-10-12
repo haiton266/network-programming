@@ -61,6 +61,7 @@
     "string": "cpp",
     "ostream": "cpp",
     "iosfwd": "cpp",
-    "*.tcc": "cpp"
+    "*.tcc": "cpp",
+    "functional": "cpp"
   }
 }

@@ -55,7 +55,7 @@ int main()
         cout << "Connection completed successfully." << endl;
 
     // STEP 3: Send data (example)
-    const char *message = "eXit12! 12a";
+    const char *message = "eXit2a@";
     int bytesSent = send(client, message, strlen(message), 0);
     if (bytesSent == SOCKET_ERROR)
     {

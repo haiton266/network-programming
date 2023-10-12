@@ -1,7 +1,6 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <iostream>
-#include <string.h>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -11,40 +10,13 @@ using namespace std;
 
 #pragma comment(lib, "Ws2_32.lib")
 
-char *lowercase(const char *str)
+string process(string input)
 {
-    char *result = (char *)malloc(strlen(str) + 1);
-    for (int i = 0; str[i] != '\0'; i++)
-    {
-        result[i] = tolower(str[i]);
-    }
-    result[strlen(str)] = '\0';
-    return result;
-}
-char *process(const char *input)
-{
-    char *result = (char *)malloc(strlen(input) + 1);
-    strcpy(result, "");
-
-    for (int i = 0; i < strlen(input); i++)
-    {
-        if ((input[i] >= 'a' && input[i] <= 'z') || (input[i] >= 'A' && input[i] <= 'Z'))
-        {
-            char temp[2] = {input[i], '\0'};
-            strcat(result, temp);
-        }
-    }
-
-    char *temp = lowercase(result);
-    // Convert result to lowercase
-    // for (int i = 0; i < strlen(result); i++)
-    // {
-    //     temp[i] = tolower(result[i]);
-    // }
-    if (strcmp(temp, "exit") == 0 || strcmp(temp, "quit") == 0)
-        strcpy(result, "good bye");
-    free(temp);
-    return result;
+    string output = "";
+    for (char c : input)
+        if (isalpha(c))
+            output += tolower(c);
+    return (output == "exit" || output == "quit") ? "good bye" : output;
 }
 
 int main()
@@ -57,11 +29,9 @@ int main()
         cout << "WSAStartup failed with error " << GetLastError() << endl;
         return 1;
     }
-
     cout << "WSAStartup completed." << endl;
 
     SOCKET listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
     if (listenSock != INVALID_SOCKET)
         cout << "Creating socket completed successfully.\n";
     else
@@ -132,7 +102,9 @@ int main()
         {
             buff[ret] = '\0'; // Null-terminate the received data
             cout << "Received message from client " << clientIP << ":" << clientPort << ": " << buff << endl;
-            char *message = process(buff);
+            string buffStr(buff);
+            buffStr = process(buffStr);
+            const char *message = buffStr.c_str();
             ret = send(NewConnection, message, strlen(message), 0);
             if (ret == SOCKET_ERROR)
             {
