@@ -1,5 +1,5 @@
 // g++ UDPclient.cpp -o UDPclient.exe -lws2_32
-// .\UDPclient.exe 127.0.0.1 8080 dut.udn.vn
+// .\UDPclient.exe 127.0.0.1 8080 quora.com
 
 #include <iostream>
 #include <winsock2.h>

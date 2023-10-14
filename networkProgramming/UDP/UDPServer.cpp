@@ -2,11 +2,54 @@
 // g++ UDPServer.cpp -o UDPServer.exe -lws2_32
 // .\UDPServer.exe 8080
 
-#include <iostream>
+#include <bits/stdc++.h>
 #include <winsock2.h> // Include the Windows Sockets API header
+#include <stdio.h>
+#include <ws2tcpip.h>
 
 using namespace std;
 
+string process(char *hostname)
+{
+    string st = "";
+    struct addrinfo hints, *result, *rp;
+    ZeroMemory(&hints, sizeof(hints));
+    // hints.ai_family = AF_UNSPEC;     // Allow IPv4 or IPv6
+    hints.ai_family = AF_INET;       // Allow IPv4
+    hints.ai_socktype = SOCK_STREAM; // Use TCP
+
+    int status = getaddrinfo(hostname, NULL, &hints, &result);
+    if (status != 0)
+    {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+        WSACleanup();
+        return "Not found information";
+    }
+
+    for (rp = result; rp != NULL; rp = rp->ai_next)
+    {
+        void *addr;
+        char ipstr[INET6_ADDRSTRLEN];
+
+        if (rp->ai_family == AF_INET)
+        {
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)rp->ai_addr;
+            addr = &(ipv4->sin_addr);
+        }
+        else
+        {
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)rp->ai_addr;
+            addr = &(ipv6->sin6_addr);
+        }
+
+        inet_ntop(rp->ai_family, addr, ipstr, sizeof(ipstr));
+        string s(ipstr);
+        st += "\n" + s;
+    }
+
+    freeaddrinfo(result);
+    return st;
+}
 int main(int argc, char *argv[])
 {
     if (argc != 2)
@@ -63,20 +106,10 @@ int main(int argc, char *argv[])
 
         buffer[bytesReceived] = '\0'; // Null-terminate the received data
 
-        // Resolve domain name to IP address
-        hostent *host = gethostbyname(buffer); // Get host information based on domain name
-        if (host == nullptr)                   // Check if domain resolution was successful
-        {
-            cerr << "Unable to resolve the domain name" << endl; // Report an error if resolution fails
-        }
-        else
-        {
-            address = (in_addr *)host->h_addr;                              // Get the IPv4 address from the host information
-            cout << "Resolved IP Address: " << inet_ntoa(*address) << endl; // Print the resolved IP address
-        }
+        string st = process(buffer);
+        const char *message = st.c_str();
 
-        // Send the resolved IP address back to the client
-        sendto(serverSocket, inet_ntoa(*address), strlen(inet_ntoa(*address)), 0, (sockaddr *)&clientAddr, clientAddrLen); // Send data back to client
+        sendto(serverSocket, message, strlen(message), 0, (sockaddr *)&clientAddr, clientAddrLen); // Send data back to client
     }
 
     closesocket(serverSocket); // Close the socket
