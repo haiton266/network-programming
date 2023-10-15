@@ -127,43 +127,39 @@ int main()
         cout << "WSAStartup failed with error " << GetLastError() << endl;
         return 1;
     }
-
     cout << "WSAStartup completed." << endl;
 
     SOCKET listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-    if (listenSock != INVALID_SOCKET)
-        cout << "Creating socket completed successfully.\n";
-    else
+    if (listenSock == INVALID_SOCKET)
     {
         cout << "Creating socket failed with code " << WSAGetLastError() << endl;
         WSACleanup(); // Clean up before returning
         return 1;
     }
+    cout << "Creating socket completed successfully.\n";
 
     sockaddr_in tcpServerAddr;
     tcpServerAddr.sin_family = AF_INET;
     tcpServerAddr.sin_port = htons(SERVER_PORT);
     tcpServerAddr.sin_addr.s_addr = inet_addr(SERVER_ADDR);
 
-    if (bind(listenSock, (sockaddr *)&tcpServerAddr, sizeof(tcpServerAddr)) != SOCKET_ERROR)
-        cout << "Bind API completed successfully.\n";
-    else
+    if (bind(listenSock, (sockaddr *)&tcpServerAddr, sizeof(tcpServerAddr)) == SOCKET_ERROR)
     {
         cout << "Bind API failed with code " << WSAGetLastError() << endl;
         closesocket(listenSock); // Clean up before returning
         WSACleanup();
         return 1;
     }
-    if (listen(listenSock, 5) != SOCKET_ERROR)
-        cout << "Server is listening for requests..." << endl;
-    else
+    cout << "Bind API completed successfully.\n";
+
+    if (listen(listenSock, 5) == SOCKET_ERROR)
     {
         cout << "Listen failed with code " << WSAGetLastError() << endl;
         closesocket(listenSock); // Clean up before returning
         WSACleanup();
         return 1;
     }
+    cout << "Server is listening for requests..." << endl;
 
     sockaddr_in clientAddr;
     char buff[BUFF_MAXSIZE], clientIP[INET_ADDRSTRLEN];
@@ -177,12 +173,9 @@ int main()
         WSACleanup();
         return 1;
     }
-    else
-    {
-        inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, sizeof(clientIP));
-        clientPort = ntohs(clientAddr.sin_port);
-        cout << "Connection is established: IP = " << clientIP << " at port = " << clientPort << endl;
-    }
+    inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, sizeof(clientIP));
+    clientPort = ntohs(clientAddr.sin_port);
+    cout << "Connection is established: IP = " << clientIP << " at port = " << clientPort << endl;
 
     while (1)
     {
@@ -212,6 +205,8 @@ int main()
             }
         }
     }
+
+    shutdown(NewConnection, SD_BOTH);
 
     closesocket(NewConnection);
     closesocket(listenSock);

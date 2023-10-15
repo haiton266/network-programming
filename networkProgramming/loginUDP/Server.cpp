@@ -128,34 +128,31 @@ int main()
         cout << "WSAStartup failed with error " << GetLastError() << endl;
         return 1;
     }
-
     cout << "WSAStartup completed." << endl;
 
     SOCKET udpServerSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-    if (udpServerSock != INVALID_SOCKET)
-        cout << "Creating socket completed successfully.\n";
-    else
+    if (udpServerSock == INVALID_SOCKET)
     {
         cout << "Creating socket failed with code " << WSAGetLastError() << endl;
         WSACleanup();
         return 1;
     }
+    cout << "Creating socket completed successfully.\n";
 
     sockaddr_in udpServerAddr;
     udpServerAddr.sin_family = AF_INET;
     udpServerAddr.sin_port = htons(SERVER_PORT);
     udpServerAddr.sin_addr.s_addr = inet_addr(SERVER_ADDR);
 
-    if (bind(udpServerSock, (sockaddr *)&udpServerAddr, sizeof(udpServerAddr)) != SOCKET_ERROR)
-        cout << "Bind API completed successfully.\n";
-    else
+    if (bind(udpServerSock, (sockaddr *)&udpServerAddr, sizeof(udpServerAddr)) == SOCKET_ERROR)
     {
         cout << "Bind API failed with code " << WSAGetLastError() << endl;
         closesocket(udpServerSock);
         WSACleanup();
         return 1;
     }
+    cout << "Bind API completed successfully.\n";
 
     sockaddr_in clientAddr;
     char buff[BUFF_MAXSIZE], clientIP[INET_ADDRSTRLEN];

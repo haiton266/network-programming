@@ -1,10 +1,6 @@
-#define NTDDI_VERSION NTDDI_VISTA
-#define WINVER _WIN32_WINNT_VISTA
-#define _WIN32_WINNT _WIN32_WINNT_VISTA
 #include <winsock2.h>
 #include <WS2tcpip.h>
-#include <iostream>
-#include <string.h>
+#include <bits/stdc++.h>
 
 // need link with Ws2_32.lib
 #pragma comment(lib, "Ws2_32.lib")
@@ -22,9 +18,6 @@ int main()
         return 1;
     }
     cout << "WSAStartup completed." << endl;
-
-    // Setup winsock communication code here
-    // sockaddr_in a;
 
     char ip[] = "127.0.0.";
     char stCodeString[10];
@@ -44,7 +37,7 @@ int main()
     {
         cout << "Convert inet_addr completed:" << ip_addr1 << endl;
     }
-    sockaddr_in serverAddr; // Thầy nạp vào arg thứ 3 là cái này --- Slide 9 lecture 2
+
     // inet_pton
     unsigned long ip_addr2;
     if (inet_pton(AF_INET, ip, &ip_addr2) == 1)
