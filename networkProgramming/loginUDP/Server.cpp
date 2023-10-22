@@ -17,9 +17,8 @@ struct UserData
     bool active;
     bool login;
 };
-bool isLogin = false;
+map<int, string> loginWith;
 vector<UserData> userData;
-string saveUserLogged;
 
 vector<UserData> readUserCSV(string filename)
 {
@@ -31,7 +30,6 @@ vector<UserData> readUserCSV(string filename)
 
     string line;
 
-    // Skip the header line
     getline(file, line);
 
     while (getline(file, line))
@@ -75,7 +73,7 @@ void updateUserCSV(string filename)
     file.close();
 }
 
-string process(const string &input)
+string process(const string &input, int clientPort)
 {
     userData = readUserCSV("database.csv"); // Update data from database
     istringstream iss(input);
@@ -84,7 +82,7 @@ string process(const string &input)
 
     if (request == "login" && id != "" && password != "" && temp == "")
     {
-        if (isLogin == 1)
+        if (loginWith[clientPort] != "")
             return "You logged in";
         for (UserData &user : userData)
         {
@@ -92,25 +90,31 @@ string process(const string &input)
             {
                 if (user.password == password)
                 {
-                    isLogin = 1;
-                    saveUserLogged = user.id;
+                    // Bỏ cmt nếu muốn 1 tài khoản chỉ vào được 1 client duy nhất (Code hiện tại: 1 tài khoản vào được nhiều client như Fb)
+                    // if (user.login == 0)
+                    // {
+                    loginWith[clientPort] = id;
                     user.login = 1;
                     updateUserCSV("database.csv");
                     return "Login successfully";
+                    // }
+                    // else
+                    //     return "You logged at another client";
                 }
-                return "Wrong password";
+                else
+                    return "Wrong password";
             }
         }
         return "Id does not exist";
     }
     else if (request == "logout" && id == "") // Check if redundant params
     {
-        if (isLogin == 0)
+        if (loginWith[clientPort] == "")
             return "Please login";
         for (auto &user : userData)
-            if (user.id == saveUserLogged)
+            if (user.id == loginWith[clientPort])
                 user.login = 0;
-        isLogin = false;
+        loginWith[clientPort] = "";
         updateUserCSV("database.csv");
         return "Logout successfully";
     }
@@ -173,7 +177,7 @@ int main()
             buff[ret] = '\0';
             cout << "Received message from client " << clientIP << ":" << clientPort << ": " << buff << endl;
             string buffStr(buff);
-            buffStr = process(buffStr);
+            buffStr = process(buffStr, clientPort);
             const char *message = buffStr.c_str();
             ret = sendto(udpServerSock, message, strlen(message), 0, (sockaddr *)&clientAddr, clientAddrLen);
             if (ret == SOCKET_ERROR)
